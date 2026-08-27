@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+@layer utilities {
+  .bento-border {
+    border: 2px solid #0f172a;
+    box-shadow: 4px 4px 0px 0px #0f172a;
+  }
+  
+  .bento-border-sm {
+    border: 2px solid #0f172a;
+    box-shadow: 2px 2px 0px 0px #0f172a;
+  }
+
+  .bento-border-lg {
+    border: 2px solid #0f172a;
+    box-shadow: 6px 6px 0px 0px #0f172a;
+  }
+
+  .bento-hover {
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .bento-hover:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px 0px #0f172a;
+  }
+
+  .bento-hover-active:active {
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0px 0px #0f172a;
+  }
+}
