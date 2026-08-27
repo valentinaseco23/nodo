@@ -6,7 +6,10 @@ import {
   LayoutGrid, 
   List, 
   ArrowUpDown, 
-  X
+  X,
+  SlidersHorizontal,
+  PanelLeftClose,
+  PanelLeftOpen
 } from 'lucide-react';
 
 interface ProductGridProps {
@@ -21,6 +24,9 @@ interface ProductGridProps {
   onToggleFavorite: (productId: string) => void;
   viewMode: 'grid' | 'list';
   onChangeViewMode: (mode: 'grid' | 'list') => void;
+  showSidebar?: boolean;
+  onToggleSidebar?: () => void;
+  activeFilterCount?: number;
 }
 
 export function ProductGrid({
@@ -34,7 +40,10 @@ export function ProductGrid({
   favorites,
   onToggleFavorite,
   viewMode,
-  onChangeViewMode
+  onChangeViewMode,
+  showSidebar = true,
+  onToggleSidebar,
+  activeFilterCount = 0
 }: ProductGridProps) {
   const hasActiveFilters = 
     filters.searchQuery !== '' ||
@@ -45,25 +54,54 @@ export function ProductGrid({
   return (
     <div id="product-grid-section" className="flex-1 flex flex-col min-w-0">
       
-      {/* Top Toolbar: Counter, Active Badges & Sort Controls */}
-      <div className="bg-white rounded-2xl border-2 border-slate-900 p-4 mb-6 shadow-[4px_4px_0px_0px_#0f172a]">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* Top Toolbar: Counter, Filter Toggle, Sort Controls & View Switch */}
+      <div className="bg-white rounded-2xl border-2 border-slate-900 p-3 sm:p-4 mb-6 shadow-[4px_4px_0px_0px_#0f172a]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
           
-          {/* Dynamic Counter */}
-          <div className="flex items-center gap-2">
-            <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 border border-slate-900 shadow-[1px_1px_0px_0px_#0f172a]" />
-            <p id="products-counter" className="text-xs sm:text-sm font-bold text-slate-800">
-              Mostrando <span className="font-black text-indigo-700 bg-indigo-50 border border-indigo-200 px-1.5 py-0.5 rounded-md">{products.length}</span> de <span className="font-black text-slate-900">{totalProductsCount}</span> productos
-            </p>
+          {/* Left: Dynamic Counter & Sidebar Toggle Button */}
+          <div className="flex items-center gap-3 flex-wrap">
+            {onToggleSidebar && (
+              <button
+                type="button"
+                id="toggle-sidebar-toolbar-btn"
+                onClick={onToggleSidebar}
+                className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border-2 border-slate-900 rounded-xl text-xs font-black text-slate-900 shadow-[2px_2px_0px_0px_#0f172a] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all cursor-pointer"
+                title={showSidebar ? "Ocultar panel lateral de filtros" : "Mostrar panel lateral de filtros"}
+              >
+                {showSidebar ? (
+                  <>
+                    <PanelLeftClose className="w-3.5 h-3.5 text-slate-700" />
+                    <span>Ocultar Filtros</span>
+                  </>
+                ) : (
+                  <>
+                    <PanelLeftOpen className="w-3.5 h-3.5 text-indigo-600" />
+                    <span>Mostrar Filtros</span>
+                  </>
+                )}
+                {activeFilterCount > 0 && (
+                  <span className="w-4 h-4 rounded-full bg-indigo-600 text-white text-[10px] font-black flex items-center justify-center border border-slate-900">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </button>
+            )}
+
+            <div className="flex items-center gap-2">
+              <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 border border-slate-900 shadow-[1px_1px_0px_0px_#0f172a]" />
+              <p id="products-counter" className="text-xs sm:text-sm font-bold text-slate-800">
+                Mostrando <span className="font-black text-indigo-700 bg-indigo-50 border border-indigo-200 px-1.5 py-0.5 rounded-md">{products.length}</span> de <span className="font-black text-slate-900">{totalProductsCount}</span> productos
+              </p>
+            </div>
           </div>
 
-          {/* Controls: Sort Dropdown & View Mode Switch */}
-          <div className="flex items-center gap-3 self-end sm:self-auto w-full sm:w-auto justify-between sm:justify-end">
+          {/* Right Controls: Sort Dropdown & View Mode Switch */}
+          <div className="flex items-center gap-2.5 self-end sm:self-auto w-full sm:w-auto justify-between sm:justify-end">
             
             {/* Sort Selector */}
             <div className="relative flex items-center">
               <label htmlFor="sort-select" className="sr-only">Ordenar productos</label>
-              <div className="flex items-center gap-2 pl-3 pr-2 py-1.5 bg-slate-50 hover:bg-slate-100 border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-[2px_2px_0px_0px_#0f172a] transition-all">
+              <div className="flex items-center gap-2 pl-2.5 pr-2 py-1.5 bg-slate-50 hover:bg-slate-100 border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-[2px_2px_0px_0px_#0f172a] transition-all">
                 <ArrowUpDown className="w-3.5 h-3.5 text-slate-700 shrink-0" />
                 <span className="hidden md:inline text-slate-600 font-bold">Ordenar:</span>
                 <select
@@ -112,7 +150,6 @@ export function ProductGrid({
                 <List className="w-4 h-4" />
               </button>
             </div>
-
           </div>
         </div>
 
@@ -193,7 +230,9 @@ export function ProductGrid({
           id="products-display-container"
           className={
             viewMode === 'grid'
-              ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5'
+              ? showSidebar
+                ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5'
+                : 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5'
               : 'flex flex-col gap-4'
           }
         >

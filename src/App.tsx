@@ -51,6 +51,9 @@ export default function App() {
   // Estado para el panel lateral de filtros en móviles
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
+  // Estado para visibilidad de la barra lateral en escritorio (ocultar / mostrar)
+  const [isSidebarVisible, setIsSidebarVisible] = useState(true);
+
   // Estado para notificaciones Toast
   const [toast, setToast] = useState<ToastMessage | null>(null);
 
@@ -265,20 +268,23 @@ export default function App() {
         </section>
 
         {/* Layout Bento: Barra Lateral de Filtros + Grilla de Productos */}
-        <div className="flex flex-col lg:flex-row gap-8 items-start">
+        <div className="flex flex-col lg:flex-row gap-6 sm:gap-8 items-start">
           
           {/* Panel Lateral de Filtros (Escritorio) Bento Card */}
-          <aside className="hidden lg:block w-72 shrink-0 bg-white rounded-3xl border-2 border-slate-900 p-6 shadow-[5px_5px_0px_0px_#0f172a] sticky top-24">
-            <FilterSidebar
-              filters={filters}
-              onUpdateFilters={handleUpdateFilters}
-              onResetFilters={handleResetFilters}
-              categoryCounts={categoryCounts}
-              minAvailablePrice={minAvailablePrice}
-              maxAvailablePrice={maxAvailablePrice}
-              activeFilterCount={activeFilterCount}
-            />
-          </aside>
+          {isSidebarVisible && (
+            <aside className="hidden lg:block w-64 shrink-0 bg-white rounded-3xl border-2 border-slate-900 p-4 shadow-[4px_4px_0px_0px_#0f172a] sticky top-24 transition-all animate-in fade-in slide-in-from-left-4 duration-200">
+              <FilterSidebar
+                filters={filters}
+                onUpdateFilters={handleUpdateFilters}
+                onResetFilters={handleResetFilters}
+                categoryCounts={categoryCounts}
+                minAvailablePrice={minAvailablePrice}
+                maxAvailablePrice={maxAvailablePrice}
+                activeFilterCount={activeFilterCount}
+                onToggleSidebar={() => setIsSidebarVisible(false)}
+              />
+            </aside>
+          )}
 
           {/* Grilla Principal de Productos */}
           <ProductGrid
@@ -293,6 +299,9 @@ export default function App() {
             onToggleFavorite={handleToggleFavorite}
             viewMode={viewMode}
             onChangeViewMode={setViewMode}
+            showSidebar={isSidebarVisible}
+            onToggleSidebar={() => setIsSidebarVisible(prev => !prev)}
+            activeFilterCount={activeFilterCount}
           />
 
         </div>
